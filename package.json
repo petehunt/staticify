@@ -1,0 +1,27 @@
+{
+  "name": "staticify",
+  "version": "0.0.1",
+  "description": "browserify v2 plugin for images and css",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node spec"
+  },
+  "dependencies": {
+    "through": "~2.3.4",
+    "mimer": "*",
+    "jasmine-node": "*"
+  },
+  "devDependencies": {
+    "browserify": "~2.17.0"
+  },
+  "author": {
+    "name": "Pete Hunt",
+    "email": "pete@instagram.com"
+  },
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ]
+}
