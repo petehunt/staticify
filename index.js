@@ -1,3 +1,4 @@
+var fs = require('fs');
 var mimer = require('mimer');
 var through = require('through');
 
@@ -10,7 +11,10 @@ function transformCSS(data) {
 }
 
 function transformImage(data, filename) {
-  var uri = 'data:' + mimer(filename) + ';base64,' + new Buffer(data).toString('base64');
+  // Unfortunately the data we get in is already character decoded, so
+  // we need to read the raw data in instead.
+  var data = fs.readFileSync(filename, 'base64');
+  var uri = 'data:' + mimer(filename) + ';base64,' + data;
   return 'module.exports = ' + JSON.stringify(uri) + ';\n';
 }
 

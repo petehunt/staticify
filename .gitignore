@@ -2,3 +2,4 @@
 node_modules
 spec/fixtures/npm-debug.log
 example/build
+.DS_Store
