@@ -32,7 +32,7 @@ function isImage(filename) {
 }
 
 function isCSS(filename) {
-  return hasExt(filename, ['.css']);
+  return hasExt(filename, ['.css', '.sass', '.scss', '.less']);
 }
 
 module.exports = function(filename) {
