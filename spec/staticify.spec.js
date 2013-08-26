@@ -21,7 +21,9 @@ describe('staticify', function() {
       exec(
         getBrowserifyBinary() + ' -t ./index.js ./spec/fixtures/root',
         function(error, stdout, stderr) {
-          expect(stdout).toEqual(fs.readFileSync('./spec/fixtures/desired.js', 'utf8'));
+          expect(stdout.indexOf('data:image/jpeg;base64') > -1).toBe(true);
+          expect(stdout.indexOf('.myclass') > -1).toBe(true);
+          expect(stdout.indexOf('hello world') > -1).toBe(true);
           finished = true;
         }
       );

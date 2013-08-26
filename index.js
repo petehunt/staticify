@@ -28,7 +28,7 @@ function hasExt(filename, exts) {
 }
 
 function isImage(filename) {
-  return hasExt(filename, ['.png', '.jpg']);
+  return hasExt(filename, ['.png', '.jpg', '.gif']);
 }
 
 function isCSS(filename) {
