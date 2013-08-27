@@ -11,7 +11,7 @@
     "mimer": "*"
   },
   "peerDependencies": {
-    "browserify": ">= 2.29.0"
+    "browserify": "2.x.x"
   },
   "devDependencies": {
     "jasmine-node": "*"
