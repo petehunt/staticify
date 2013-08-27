@@ -11,9 +11,6 @@ function transformCSS(data) {
 }
 
 function transformImage(data, filename) {
-  // Unfortunately the data we get in is already character decoded, so
-  // we need to read the raw data in instead.
-  var data = fs.readFileSync(filename, 'base64');
   var uri = 'data:' + mimer(filename) + ';base64,' + data;
   return 'module.exports = ' + JSON.stringify(uri) + ';\n';
 }
@@ -35,18 +32,44 @@ function isCSS(filename) {
   return hasExt(filename, ['.css', '.sass', '.scss', '.less']);
 }
 
-module.exports = function(filename) {
+function transformer(func, args) {
   var buf = '';
-  return through(function(data) {
-    buf += data;
-  }, function() {
-    if (isImage(filename)) {
-      this.queue(transformImage(buf, filename));
-    } else if (isCSS(filename)) {
-      this.queue(transformCSS(buf));
-    } else {
-      this.queue(buf);
+  return through(
+    function(data) {
+      buf += data;
+    },
+    function() {
+      this.queue(func.apply(this, [buf].concat(args)));
+      this.queue(null);
     }
-    this.queue(null);
-  });
+  );
+}
+
+function guardWrites(stream) {
+  // make sink's write and end a noop
+  var sink = through();
+  sink.write = function() {};
+  sink.end = function() {};
+  // pass data from source to sink using through-specific API
+  var source = through(
+    function(data) { sink.queue(data); },
+    function() { sink.queue(null); }
+  );
+  stream.pipe(source);
+  return sink;
+}
+
+module.exports = function(filename) {
+  if (isImage(filename)) {
+    // Unfortunately the data we get in is already character decoded, so
+    // we need to read the raw data in instead.
+    // For this we use guardWrites which turns external writes into noops.
+    return guardWrites(
+      fs.createReadStream(filename, {encoding: 'base64'})
+        .pipe(transformer(transformImage, [filename])))
+  } else if (isCSS(filename)) {
+    return transformer(transformCSS, [filename]);
+  } else {
+    return through();
+  }
 };
