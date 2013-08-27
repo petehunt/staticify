@@ -45,19 +45,19 @@ function transformer(func, args) {
   );
 }
 
+function noop() {
+}
+
 function guardWrites(stream) {
   var sink = through();
   // store sink's write and end method so we can override original references
   // and make sink non-writable by anyone except the source
   sinkWrite = sink.write;
   sinkEnd = sink.end;
-  sink.write = function() {};
-  sink.end = function() {};
+  sink.write = noop;
+  sink.end = noop;
   // pass data from source to sink
-  var source = through(
-    function(data) { sinkWrite.call(sink, data); },
-    function() { sinkEnd.call(sink, null); }
-  );
+  var source = through(sinkWrite.bind(sink), sinkEnd.bind(sink, null));
   stream.pipe(source);
   return sink;
 }
