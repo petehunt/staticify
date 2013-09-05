@@ -9,12 +9,12 @@ function transformCSS(data) {
   code += 'var nodeID = ' + JSON.stringify(nodeID) + ';\n';
   code += 'var code = ' + JSON.stringify(data) + ';\n';
   code += 'if (typeof window === \'undefined\') {\n';
-  code += '  if (!global.__staticify_css) {\n';
-  code += '    global.__staticify_css = [];\n';
+  code += '  var g = eval(\'global\');\n'; // bypass browserify global insertion
+  code += '  if (!g.__staticify_css) {\n';
+  code += '    g.__staticify_css = [];\n';
   code += '  }\n';
-  code += '  global.__staticify_css.push({nodeID: nodeID, code: code});\n';
-  code += '}\n';
-  code += 'if (document.getElementById(nodeID)) {\n';
+  code += '  g.__staticify_css.push({nodeID: nodeID, code: code});\n';
+  code += '} else if (!document.getElementById(nodeID)) {\n';
   code += '  var node = document.createElement(\'style\');\n';
   code += '  node.setAttribute(\'id\', nodeID);\n';
   code += '  node.innerHTML = code;\n';
