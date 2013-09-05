@@ -1,12 +1,25 @@
 var fs = require('fs');
 var mimer = require('mimer');
+var sha1 = require('sha1');
 var through = require('through');
 
 function transformCSS(data) {
   var code = '';
-  code += 'var node = document.createElement(\'style\');\n';
-  code += 'node.innerHTML = ' + JSON.stringify(data) + ';\n';
-  code += 'document.head.appendChild(node);\n';
+  var nodeID = '__staticify_style__' + sha1(data);
+  code += 'var nodeID = ' + JSON.stringify(nodeID) + ';\n';
+  code += 'var code = ' + JSON.stringify(data) + ';\n';
+  code += 'if (typeof window === \'undefined\') {\n';
+  code += '  if (!global.__staticify_css) {\n';
+  code += '    global.__staticify_css = [];\n';
+  code += '  }\n';
+  code += '  global.__staticify_css.push({nodeID: nodeID, code: code});\n';
+  code += '}\n';
+  code += 'if (document.getElementById(nodeID)) {\n';
+  code += '  var node = document.createElement(\'style\');\n';
+  code += '  node.setAttribute(\'id\', nodeID);\n';
+  code += '  node.innerHTML = code;\n';
+  code += '  document.head.appendChild(node);\n';
+  code += '}\n';
   return code;
 }
 
