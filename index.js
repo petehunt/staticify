@@ -3,11 +3,24 @@ var mimer = require('mimer');
 var sha1 = require('sha1');
 var through = require('through');
 
+function insertRequiresIntoCSS(data) {
+  var re = /require\(["'](.*?)["']\)/;
+  var pieces = data.split(re);
+  return pieces.map(function(piece, index) {
+    var isRequire = index % 2 === 1;
+    if (!isRequire) {
+      return JSON.stringify(piece);
+    } else {
+      return 'require(' + JSON.stringify(piece) + ')';
+    }
+  }).join(' + ');
+}
+
 function transformCSS(data) {
   var code = '';
   var nodeID = '__staticify_style__' + sha1(data);
   code += 'var nodeID = ' + JSON.stringify(nodeID) + ';\n';
-  code += 'var code = ' + JSON.stringify(data) + ';\n';
+  code += 'var code = ' + insertRequiresIntoCSS(data) + ';\n';
   code += 'if (typeof window === \'undefined\') {\n';
   code += '  var g = eval(\'global\');\n'; // bypass browserify global insertion
   code += '  if (!g.__staticify_css) {\n';
