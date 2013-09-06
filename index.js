@@ -11,7 +11,7 @@ function insertRequiresIntoCSS(data) {
     if (!isRequire) {
       return JSON.stringify(piece);
     } else {
-      return 'require(' + JSON.stringify(piece) + ')';
+      return '"url(" + require(' + JSON.stringify(piece) + ') + ")"';
     }
   }).join(' + ');
 }
