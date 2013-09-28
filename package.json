@@ -8,8 +8,7 @@
   },
   "dependencies": {
     "through": "~2.3.4",
-    "mimer": "*",
-    "sha1": "*"
+    "mimer": "*"
   },
   "peerDependencies": {
     "browserify": "2.x.x"

@@ -1,40 +1,6 @@
 var fs = require('fs');
 var mimer = require('mimer');
-var sha1 = require('sha1');
 var through = require('through');
-
-function insertRequiresIntoCSS(data) {
-  var re = /require\(["'](.*?)["']\)/;
-  var pieces = data.split(re);
-  return pieces.map(function(piece, index) {
-    var isRequire = index % 2 === 1;
-    if (!isRequire) {
-      return JSON.stringify(piece);
-    } else {
-      return '"url(" + require(' + JSON.stringify(piece) + ') + ")"';
-    }
-  }).join(' + ');
-}
-
-function transformCSS(data) {
-  var code = '';
-  var nodeID = '__staticify_style__' + sha1(data);
-  code += 'var nodeID = ' + JSON.stringify(nodeID) + ';\n';
-  code += 'var code = ' + insertRequiresIntoCSS(data) + ';\n';
-  code += 'if (typeof window === \'undefined\') {\n';
-  code += '  var g = eval(\'global\');\n'; // bypass browserify global insertion
-  code += '  if (!g.__staticify_css) {\n';
-  code += '    g.__staticify_css = [];\n';
-  code += '  }\n';
-  code += '  g.__staticify_css.push({nodeID: nodeID, code: code});\n';
-  code += '} else if (!document.getElementById(nodeID)) {\n';
-  code += '  var node = document.createElement(\'style\');\n';
-  code += '  node.setAttribute(\'id\', nodeID);\n';
-  code += '  node.innerHTML = code;\n';
-  code += '  document.head.appendChild(node);\n';
-  code += '}\n';
-  return code;
-}
 
 function transformImage(data, filename) {
   var uri = 'data:' + mimer(filename) + ';base64,' + data;
@@ -52,10 +18,6 @@ function hasExt(filename, exts) {
 
 function isImage(filename) {
   return hasExt(filename, ['.png', '.jpg', '.gif']);
-}
-
-function isCSS(filename) {
-  return hasExt(filename, ['.css', '.sass', '.scss', '.less']);
 }
 
 function transformer(func, args) {
@@ -96,8 +58,6 @@ module.exports = function(filename) {
     return guardWrites(
       fs.createReadStream(filename, {encoding: 'base64'})
         .pipe(transformer(transformImage, [filename])))
-  } else if (isCSS(filename)) {
-    return transformer(transformCSS, [filename]);
   } else {
     return through();
   }
